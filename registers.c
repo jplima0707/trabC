@@ -8,6 +8,7 @@
 
 #define FILE_PATH "registers.bin"
 #define FILE_SIZE 1024  // Same size as used in the first program
+#define NUM_REGISTERS 16
 
 // Function to open or create the file and map it into memory
 char* registers_map(const char* file_path, int file_size, int* fd) {
@@ -53,6 +54,7 @@ int registers_release(void* map, int file_size, int fd) {
 
 int main() {
     int fd;
+    int command;
     // Open the file and map it into memory
     char* map = registers_map(FILE_PATH, FILE_SIZE, &fd);
     if (map == NULL) {
@@ -60,18 +62,30 @@ int main() {
     }
 
     unsigned short *base_address = (unsigned short *)map;
+    unsigned short *registers[NUM_REGISTERS];
 
-    unsigned short *r0 = base_address + 0x00;
-    unsigned short *r1 = base_address + 0x01;
+    // Initialize the registers
+    for (int i = 0; i < NUM_REGISTERS; i++) {
+        registers[i] = base_address + i;
+    }
 
-    printf("Current value of R0: 0x%02x\n", *r0);
-    printf("Current value of R1: 0x%02x\n", *r1);
+    // Print the initial values of the registers
+    for (int i = 0; i < NUM_REGISTERS; i++) {
+        printf("Current value of R%d: 0x%04x\n", i, *registers[i]);
+    }
 
-    // Write a new value to R0
-    *r0 = *r0 | 0x00;
+    // Use the liga and desliga functions
+    liga(registers[0]);
+    //printf("New value of R0 after setting bit 0: 0x%04x\n", *registers[0]);
 
-    printa();
-
+    //desliga(registers[0]);
+    //printf("New value of R0 after clearing bit 0: 0x%04x\n", *registers[0]);
+    printf("1 - Estatico \n");
+    printf("2 - Deslizante \n");
+    printf("3 - Piscante \n");
+    printf("4 - Deslizante/Piscante \n");
+    scanf("%i", &command);
+    exibicao(command, registers[0], registers[0]);
     // Release resources
     if (registers_release(map, FILE_SIZE, fd) == -1) {
         return EXIT_FAILURE;

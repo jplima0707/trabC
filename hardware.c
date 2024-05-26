@@ -1,8 +1,44 @@
 #include <stdio.h>
 #include "hardware.h"
 
-void printa(){
-    printf("Ola mundo! \n");
+void set_register_bit(unsigned short* reg, int bit_position, int value) {
+    if (value) {
+        // Set the bit
+        *reg |= (1 << bit_position);
+    } else {
+        // Clear the bit
+        *reg &= ~(1 << bit_position);
+    }
 }
 
+void liga(unsigned short* reg){
+    set_register_bit(reg, 0, 1); // Pass reg directly
+}
 
+void desliga(unsigned short* reg){
+    set_register_bit(reg, 0, 0); // Pass reg directly
+}
+
+void exibicao(int i,unsigned short* reg, unsigned short* reg2 ){
+    switch(i){
+        case 1:
+        set_register_bit(reg, 1, 0);
+        set_register_bit(reg2, 2, 0);
+            break;
+        case 2:
+        set_register_bit(reg, 1, 1);
+        set_register_bit(reg2, 2, 0);
+            break;
+        case 3:
+        set_register_bit(reg, 1, 0);
+        set_register_bit(reg2, 2, 1);
+            break;
+        case 4:
+        set_register_bit(reg, 1, 1);
+        set_register_bit(reg2, 2, 1);
+            break;
+        default:
+            printf("Invalid command\n");
+            break;
+    }
+}
