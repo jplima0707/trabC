@@ -86,6 +86,7 @@ int main() {
     printf("4 - Deslizante/Piscante \n");
     scanf("%i", &command);
     exibicao(command, registers[0], registers[0]);
+     printf("Current value of R%d: 0x%04x\n", 0, *registers[0]);
     // Release resources
     if (registers_release(map, FILE_SIZE, fd) == -1) {
         return EXIT_FAILURE;
