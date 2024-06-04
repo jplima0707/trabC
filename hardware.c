@@ -9,6 +9,10 @@ void set_register_bit(unsigned short* reg, int bit_position, int value) {
     }
 }
 
+int ve_bit_0(unsigned short* reg) {
+    return (*reg & 0x01);
+}
+
 void liga(unsigned short* reg) {
     set_register_bit(reg, 0, 1);
 }
@@ -89,7 +93,7 @@ void configure_message(const char* message, unsigned short** registers) {
 
 void controlar_led_status(unsigned short* reg, int nivel_bateria) {
     switch(nivel_bateria) {
-        case 0: // Crítico
+        case 0: // CrÃ­tico
             set_register_bit(reg, 10, 1); // Vermelho
             set_register_bit(reg, 11, 0);
             set_register_bit(reg, 12, 0);
@@ -107,19 +111,9 @@ void controlar_led_status(unsigned short* reg, int nivel_bateria) {
         default:
             printf("Invalid battery level\n");
             break;
-        }
+    }
+}
 
-    // int le_bateria_int(unsigned short* reg) {
-    // return (*reg >> 0) & 0b11;
-    // }
-
-    // char* le_bateria_status(unsigned short *r3) {
-    //     switch (le_bateria_int(r3)) {
-    //         case 0: return "Critico";
-    //         case 1: return "Baixo";
-    //         case 2: return "Medio";
-    //         case 3: return "Alto";
-    //     default: return "Invalido";
-    //     }
-    // }
+int le_bateria_int(unsigned short* reg) {
+    return (*reg & 0x0003);
 }

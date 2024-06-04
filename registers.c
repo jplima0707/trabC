@@ -50,6 +50,7 @@ int registers_release(void* map, int file_size, int fd) {
 }
 
 int main() {
+    int op;
     int fd;
     int command;
     int corVermelho;
@@ -74,49 +75,76 @@ int main() {
         printf("Current value of R%d: 0x%04x\n", i, *registers[i]);
     }
 
-    liga(registers[0]);
+    do {
+        printf("1 - liga/desliga\n");
+        printf("2 - mudar modo de exibição\n");
+        printf("3 - mudar cores\n");
+        printf("4 - mudar palavra\n");
+        printf("5 - mudar velocidade do texto\n");
+        printf("0 - sair\n");
 
-    printf("Digite uma mensagem (max %d caracteres): ", DISPLAY_LENGTH);
-    limpa_emulador(registers);
-    fgets(message, DISPLAY_LENGTH + 1, stdin);
+        printf("Escolha uma opção: ");
+        scanf("%d", &op);
 
-    configure_message(message, registers);
+        switch (op) {
+            case 1:
+                if (ve_bit_0(registers[0]) == 0) {
+                    liga(registers[0]);
+                } else {
+                    desliga(registers[0]);
+                }
+                break;
+            case 2:
+                printf("Escolha o modo de exibição:\n");
+                printf("1 - Estatico\n");
+                printf("2 - Deslizante\n");
+                printf("3 - Piscante\n");
+                printf("4 - Deslizante/Piscante\n");
+                scanf("%d", &command);
+                exibicao(command, registers[0]);
+                break;
+            case 3:
+                printf("Escolha a quantidade de cada cor da mensagem:\n");
+                printf("Quantidade de vermelho (max. 255): \n");
+                scanf("%d", &corVermelho);
+                def_vermelho(registers[1], corVermelho);
 
-    printf("Escolha o modo de exibição:\n");
-    printf("1 - Estatico\n");
-    printf("2 - Deslizante\n");
-    printf("3 - Piscante\n");
-    printf("4 - Deslizante/Piscante\n");
-    scanf("%d", &command);
-    exibicao(command, registers[0]);
+                printf("Quantidade de verde (max. 255): \n");
+                scanf("%d", &corVerde);
+                def_verde(registers[1], corVerde);
 
-    if(command == 2 || command == 4){
-        printf("Escolha a velocidade de atualização (0-63):\n");
-        scanf("%d", &velocidade);
-        definir_velocidade(registers[0], velocidade);
-    }
-
-    printf("Escolha a quantidade de cada cor da mensagem:\n");
-    printf("Quantidade de vermelho(max. 255): \n");
-    scanf("%d", &corVermelho);
-    def_vermelho(registers[1], corVermelho);
-
-    printf("Quantidade de verde(max. 255): \n");
-    scanf("%d", &corVerde);
-    def_verde(registers[1], corVerde);
-
-    printf("Quantidade de azul(max. 255): \n");
-    scanf("%d", &corAzul);
-    def_azul(registers[2], corAzul);
+                printf("Quantidade de azul (max. 255): \n");
+                scanf("%d", &corAzul);
+                def_azul(registers[2], corAzul);
+                break;
+            case 4:
+                printf("Digite uma mensagem (max %d caracteres): ", DISPLAY_LENGTH);
+                limpa_emulador(registers);
+                getchar(); // Consumes the newline character left by previous input
+                fgets(message, DISPLAY_LENGTH + 1, stdin);
+                configure_message(message, registers);
+                break;
+            case 5:
+                printf("Escolha a velocidade de atualização (0-63):\n");
+                scanf("%d", &velocidade);
+                definir_velocidade(registers[0], velocidade);
+                break;
+            case 0:
+                printf("Fim do programa!\n");
+                break;
+            default:
+                printf("Opção inválida!\n");
+        }
+    } while (op != 0);
 
     // Controle do LED de status de acordo com o nível da bateria
-    // int nivel_bateria = le_bateria_int(registers[3]);
-    // controlar_led_status(registers[0], nivel_bateria);
+    int nivel_bateria = le_bateria_int(registers[3]);
+    controlar_led_status(registers[0], nivel_bateria);
 
     printf("Configurações aplicadas:\n");
     printf("Modo de exibição: %d\n", command);
     printf("Velocidade: %d\n", velocidade);
-    //printf("Nível da bateria: %d\n", nivel_bateria);
+    printf("Nível da bateria: %d\n", nivel_bateria);
 
     if (registers_release(map, FILE_SIZE, fd) == -1) {
         return EXIT_FAILURE;
